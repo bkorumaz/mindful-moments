@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Simple design tokens to mimic shadcn-like color roles */
+:root { --background: 255 255 255; }
+
+body { @apply text-slate-900; }
+.dark body { @apply text-slate-100; }
+
+.bg-background { @apply bg-white dark:bg-slate-950; }
+.text-muted-foreground { @apply text-slate-500 dark:text-slate-400; }
+.border { @apply border-slate-200 dark:border-slate-800; }
