@@ -81,14 +81,11 @@ function GreetingBar({ dark, setDark, glass, setGlass, onGreetingChange }){
         <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="p-2 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-sky-500/20">
           <MountainSnow className="w-6 h-6" />
         </motion.div>
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">{greet}, Bahadır</h1>
-          <p className="text-xs text-muted-foreground">Welcome back — let’s make today count.</p>
-        </div>
+        <div><p className="text-xs text-muted-foreground">Have a focused day.</p></div>
       </div>
       <div className="flex items-center gap-3">
-        <Badge variant="secondary" className="hidden sm:flex">v0.5.1 · Concept</Badge>
-        <div className="hidden sm:flex items-center gap-2 text-xs">
+        <Badge variant="secondary" className="hidden sm:flex">v0.5.2 · Concept</Badge>
+        <div className="flex items-center gap-2 text-xs">
           <span className="opacity-70">Ambient</span>
           <select value={ambient} onChange={(e)=>setAmbient(e.target.value)} className="border rounded-xl px-2 py-1 bg-background capitalize">
             {AMBIENTS.map(a=> <option key={a.id} value={a.id}>{a.name}</option>)}
@@ -119,7 +116,7 @@ function BreathCoach({ onClose }){
     <div className="mt-3 rounded-2xl border p-4 relative overflow-hidden supports-[backdrop-filter]:backdrop-blur-sm bg-gradient-to-br from-indigo-500/10 via-sky-500/10 to-emerald-500/10">
       <div className="flex items-center justify-between"><p className="text-sm font-medium">Guided breathing (4–4–6)</p><Button size="sm" variant="ghost" onClick={onClose}>Close</Button></div>
       <div className="h-48 flex items-center justify-center relative">
-        <motion.div className="w-32 h-32 rounded-full bg-indigo-500/30" animate={{scale:[1,1.15,1.15,1],opacity:[.7,.9,.9,.7]}} transition={{duration:TOTAL_BREATH,times:keyTimes,repeat:Infinity,ease:'easeInOut'}}/>
+        <motion.div className="w-32 h-32 rounded-full bg-indigo-500/30 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" animate={{scale:[1,1.15,1.15,1],opacity:[.7,.9,.9,.7]}} transition={{duration:TOTAL_BREATH,times:keyTimes,repeat:Infinity,ease:'easeInOut'}}/>
         <div className="absolute"><svg width="160" height="160" viewBox="0 0 160 160"><circle cx="80" cy="80" r="68" stroke="rgba(99,102,241,.25)" strokeWidth="6" fill="none"/><motion.circle cx="80" cy="80" r="68" stroke="rgba(99,102,241,.8)" strokeWidth="6" fill="none" strokeDasharray={2*Math.PI*68} strokeDashoffset={(1-progress)*2*Math.PI*68} /></svg></div>
       </div>
       <p className="text-center text-sm">{phase}…</p>
@@ -131,7 +128,7 @@ function MindfulMoment(){ const idx=(new Date().getDate()+new Date().getMonth())
 
 // Weather + Clock
 const WMAP={ 0:{t:'Clear',icon:<Sun className="w-5 h-5"/>},1:{t:'Mainly clear',icon:<Sun className="w-5 h-5"/>},2:{t:'Clouds',icon:<Cloud className="w-5 h-5"/>},3:{t:'Overcast',icon:<Cloud className="w-5 h-5"/>},45:{t:'Fog',icon:<Cloud className="w-5 h-5"/>},48:{t:'Rime fog',icon:<Cloud className="w-5 h-5"/>},51:{t:'Drizzle',icon:<CloudRain className="w-5 h-5"/>},53:{t:'Drizzle',icon:<CloudRain className="w-5 h-5"/>},55:{t:'Drizzle',icon:<CloudRain className="w-5 h-5"/>},61:{t:'Rain',icon:<CloudRain className="w-5 h-5"/>},63:{t:'Rain',icon:<CloudRain className="w-5 h-5"/>},65:{t:'Rain',icon:<CloudRain className="w-5 h-5"/>},71:{t:'Snow',icon:<Snowflake className="w-5 h-5"/>},73:{t:'Snow',icon:<Snowflake className="w-5 h-5"/>},75:{t:'Snow',icon:<Snowflake className="w-5 h-5"/>},77:{t:'Snow grains',icon:<Snowflake className="w-5 h-5"/>},80:{t:'Showers',icon:<CloudRain className="w-5 h-5"/>},81:{t:'Showers',icon:<CloudRain className="w-5 h-5"/>},82:{t:'Heavy showers',icon:<CloudRain className="w-5 h-5"/>},95:{t:'Thunderstorm',icon:<CloudRain className="w-5 h-5"/>},96:{t:'Thunderstorm',icon:<CloudRain className="w-5 h-5"/>},99:{t:'Thunderstorm',icon:<CloudRain className="w-5 h-5"/>} };
-function useWeather(){ const [state,setState]=useState({loading:true,city:'',temp:null,hi:null,lo:null,wind:null,code:2}); useEffect(()=>{ if(!navigator.geolocation){ setState(s=>({...s,loading:false})); return } let cancel=false; const controller=new AbortController(); navigator.geolocation.getCurrentPosition(async (pos)=>{ const {latitude:lat,longitude:lon}=pos.coords; try{ const resp1=await fetch(`https://geocoding-api.open-meteo.com/v1/reverse?latitude=${lat}&longitude=${lon}&language=en`,{signal:controller.signal}); const geo=await resp1.json(); const city=geo?.results?.[0]?.city||geo?.results?.[0]?.name||'Your location'; const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`; const r=await fetch(url,{signal:controller.signal}); const j=await r.json(); if(cancel) return; const code=j?.current?.weather_code??2; setState({loading:false,city,temp:Math.round(j?.current?.temperature_2m??0),hi:Math.round(j?.daily?.temperature_2m_max?.[0]??0),lo:Math.round(j?.daily?.temperature_2m_min?.[0]??0),wind:Math.round(j?.current?.wind_speed_10m??0),code}) }catch{ if(!cancel) setState(s=>({...s,loading:false})) } },()=> setState(s=>({...s,loading:false})),{maximumAge:60000,timeout:5000}); return ()=>{ cancel=true; controller.abort() } },[]); return state }
+function useWeather(){ const [state,setState]=useState({loading:true,city:'',temp:null,hi:null,lo:null,wind:null,code:2}); useEffect(()=>{ if(!navigator.geolocation){ setState(s=>({...s,loading:false})); return } let cancel=false; const controller=new AbortController(); navigator.geolocation.getCurrentPosition(async (pos)=>{ const {latitude:lat,longitude:lon}=pos.coords; try{ const resp1=await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`,{signal:controller.signal}); const geo=await resp1.json(); const city = geo?.city || geo?.locality || geo?.principalSubdivision || 'Your location'; const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`; const r=await fetch(url,{signal:controller.signal}); const j=await r.json(); if(cancel) return; const code=j?.current?.weather_code??2; setState({loading:false,city,temp:Math.round(j?.current?.temperature_2m??0),hi:Math.round(j?.daily?.temperature_2m_max?.[0]??0),lo:Math.round(j?.daily?.temperature_2m_min?.[0]??0),wind:Math.round(j?.current?.wind_speed_10m??0),code}) }catch{ if(!cancel) setState(s=>({...s,loading:false})) } },()=> setState(s=>({...s,loading:false})),{maximumAge:60000,timeout:5000}); return ()=>{ cancel=true; controller.abort() } },[]); return state }
 function paletteFor(code){ const hour=new Date().getHours(); const night=hour>=19||hour<6; const rain=[51,53,55,61,63,65,80,81,82,95,96,99]; const snow=[71,73,75,77]; const cloudy=[2,3,45,48]; if(snow.includes(code)) return { base:'from-sky-200/40 via-slate-200/30 to-indigo-200/30', blobs:['radial-gradient(40% 40% at 20% 30%, rgba(191,219,254,.55), transparent)','radial-gradient(30% 30% at 80% 70%, rgba(203,213,225,.45), transparent)'] }; if(rain.includes(code)) return { base:'from-sky-600/30 via-cyan-600/25 to-indigo-600/25', blobs:['radial-gradient(40% 40% at 20% 30%, rgba(14,165,233,.45), transparent)','radial-gradient(30% 30% at 80% 70%, rgba(6,182,212,.35), transparent)'] }; if(cloudy.includes(code)) return { base:'from-slate-500/30 via-sky-500/20 to-indigo-500/20', blobs:['radial-gradient(40% 40% at 20% 30%, rgba(100,116,139,.40), transparent)','radial-gradient(30% 30% at 80% 70%, rgba(59,130,246,.25), transparent)'] }; if(night) return { base:'from-indigo-800/35 via-purple-800/25 to-fuchsia-700/20', blobs:['radial-gradient(40% 40% at 20% 30%, rgba(67,56,202,.50), transparent)','radial-gradient(30% 30% at 80% 70%, rgba(168,85,247,.35), transparent)'] }; return { base:'from-amber-400/30 via-orange-400/20 to-sky-400/20', blobs:['radial-gradient(40% 40% at 20% 30%, rgba(251,191,36,.45), transparent)','radial-gradient(30% 30% at 80% 70%, rgba(59,130,246,.30), transparent)'] } }
 function HereAndNow({ glass, title }){ const now=useClock(); const weather=useWeather(); const hours=now.getHours(); const mins=now.getMinutes(); const secs=now.getSeconds(); const time=now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'}); const date=now.toLocaleDateString([], {weekday:'long',month:'long',day:'numeric'}); const pctDay=Math.round(((hours*60+mins+secs/60)/(24*60))*100); const pal=paletteFor(weather.code||2); return (<Card className={`rounded-2xl overflow-hidden relative ${glass? 'supports-[backdrop-filter]:backdrop-blur bg-white/30 dark:bg-slate-900/20 border-white/40 dark:border-white/10':''}`}><motion.div aria-hidden className={`absolute inset-0 bg-gradient-to-br ${pal.base}`} animate={{opacity:[.9,1,.95,1]}} transition={{duration:10,repeat:Infinity,ease:'easeInOut'}}/><motion.div aria-hidden className="absolute -inset-20 blur-3xl opacity-60" style={{background:pal.blobs.join(',')}} animate={{x:[0,15,-10,0],y:[0,-8,10,0]}} transition={{duration:16,repeat:Infinity,ease:'easeInOut'}}/><CardHeader className="relative pb-2"><CardTitle className="flex items-center gap-2"><Thermometer className="w-5 h-5"/> {title||'Here & Now'}</CardTitle><CardDescription>Time, date and local weather in one glance.</CardDescription></CardHeader><CardContent className="relative">{weather.loading? (<div className="text-sm text-muted-foreground">Fetching weather…</div>):(<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end"><div><div className="text-4xl sm:text-5xl font-semibold tabular-nums">{time}</div><div className="text-sm text-muted-foreground">{date}</div><div className="text-right text-xs text-muted-foreground mt-2"><div>Day progress</div><div className="w-full h-2 rounded-full bg-black/10 dark:bg-white/10 mt-1 overflow-hidden"><div className="h-full bg-gradient-to-r from-indigo-500 to-teal-500" style={{width:`${pctDay}%`}}/></div><div className="tabular-nums mt-1">{pctDay}%</div></div></div><div className="sm:text-right"><div className="flex sm:justify-end items-center gap-2 text-sm text-muted-foreground"><MapPin className="w-4 h-4"/>{weather.city}</div><div className="text-4xl font-semibold mt-1 tabular-nums">{weather.temp}°</div><div className="text-sm text-muted-foreground flex sm:justify-end items-center gap-2">{(WMAP[weather.code]||{}).icon}<span>{(WMAP[weather.code]||{t:'—'}).t}</span><span className="h-1 w-1 rounded-full bg-slate-400/50 inline-block mx-1"/> H {weather.hi}° • L {weather.lo}°</div><div className="text-xs text-muted-foreground mt-1 inline-flex sm:justify-end items-center gap-1"><Wind className="w-4 h-4"/> {weather.wind} km/h</div></div></div>)}</CardContent></Card>) }
 
@@ -159,7 +156,19 @@ function Habits({glass}){
   const [name,setName]=useState('');
   const todayKey=new Date().toISOString().slice(0,10);
 
-  // Migrate existing items to ensure history is always an object
+  
+  // Build current week array (Mon..Sun)
+  const _start = new Date();
+  const _day = _start.getDay(); // 0=Sun..6=Sat
+  const _diff = (_day === 0 ? -6 : 1) - _day; // to Monday
+  _start.setDate(_start.getDate() + _diff);
+  const WEEKDAY = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const week = Array.from({length:7}).map((_,i)=>{
+    const d = new Date(_start);
+    d.setDate(_start.getDate()+i);
+    return { key: d.toISOString().slice(0,10), d, label: WEEKDAY[i] };
+  });
+// Migrate existing items to ensure history is always an object
   useEffect(()=>{
     setHabits(hs => Array.isArray(hs) ? hs.map(h => ({ ...h, history: h && typeof h.history === 'object' ? h.history : {} })) : []);
   },[]);
@@ -199,13 +208,13 @@ function Habits({glass}){
                 <div className="text-xs text-muted-foreground">Streak: {streakFor(h)}d</div>
               </div>
               <div className="grid grid-cols-7 gap-1 mt-2">
-                {last7.map(x=>{
+                {week.map(x=>{
                   const on=!!((h.history||{})[x.key]);
                   const isToday=x.key===todayKey;
                   return (
                     <button key={x.key} onClick={()=>toggle(h.id,x.key)} title={`${x.d.toLocaleDateString()} — ${on?'Done':'No'}`}
                       className={`h-8 rounded-md border text-[10px] relative ${on? 'bg-emerald-500/80 border-emerald-600 text-white':'hover:bg-slate-100 dark:hover:bg-slate-800'} ${isToday?'ring-2 ring-indigo-500':''}`}>
-                      <span className="absolute left-1/2 -translate-x-1/2 top-0.5 opacity-80">{dd(x.d)}</span>
+                      <span className="absolute left-1/2 -translate-x-1/2 top-0.5 opacity-80">{x.label}</span>
                     </button>
                   )
                 })}
